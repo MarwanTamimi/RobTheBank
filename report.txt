@@ -1,0 +1,244 @@
+==========
+Hack #1
+==========
+Give all the steps and input which you used to trigger this vulnerability
+1)Visit the 'Pay Bill' page on the target website.
+2)Use Google Inspection to open and view all HTML fields.
+3)Locate the Transfer From Account field in the HTML.
+4)Select a visible account option on the page.
+5)Inject the account number value attribute with an SQL injection, e.g., <option value="747' OR 1=1; --">.
+6)Enter a transfer amount on the webpage and click the Make Transaction button.
+7)The transaction execution will unlock the achievement.
+
+
+
+
+Explain exactly how you discovered this vulnerability
+this took a long time since I tried to inject every query, URL parameter and form field with sql injection. I knew it was an sql injection from the description comment that was given in the challenge. I used a Google developer tool to inject every parameter input the reason for that is because of the hint that was given to me. then I injected the form field in the pay bill tab with SQL injection  then I received the flag
+Suggest a possible fault in the application that resulted in this vulnerability
+Sql injection: usually results from a basic error in the way an application processes due to a lack of input validation and sanitization
+==========
+Hack #2
+==========
+Give all the steps and input which you used to trigger this vulnerability
+1)Use inspection tools, check the Network tab to verify the server-side language is PHP, indicated by file extensions or headers in 2)network requests.
+3)Search online for resources like Common-PHP-Filenames.txt for a list of PHP filenames.
+4)Look for hints on the website.
+5)Cross-reference any potential filename with the common PHP filenames list.
+6)Identify a likely filename (e.g., testing.php) and visit that URL (https://robthebank.soton.ac.uk/testing.php) to trigger the flag.
+Resource used: Common-PHP-Filenames.txt from GitHub.
+
+
+
+
+
+Explain exactly how you discovered this vulnerability
+Using PHP knowledge, I compiled a list of common filenames from the internet (Seclists). Rather than manually testing each, I used educated guesses, picking likely filenames to match against the list. Noticing hack#2's title, I found a similar name on the list, tested it, and successfully got the flag.
+Suggest a possible fault in the application that resulted in this vulnerability
+Information Exposure: Numerous possible errors in the configuration or design of the application due to insecure data storage or debugger left behind
+==========
+Hack #3
+==========
+Give all the steps and input which you used to trigger this vulnerability
+1)Open Burp Suite.
+2)Use Burp Suite to intercept web traffic, focusing on the 'My Accounts' tab and the action on index 1.
+3)Intercept the request and send it to the Repeater.
+4)In the Repeater tab, replace GET /accounts/index/1 with the script <script>alert("flag")</script>.
+5)Click 'Send' to dispatch the altered request to the server, which unlocks the achievement.
+Explain exactly how you discovered this vulnerability
+when I read the hint that was provided I decided to go to every GET then POST parameter and inject it with XSS using the same script in ecs.lol, I decided to use the Burp suite repeater since it is easier to retrace my steps back i went through every parameter and injected it with the same script till I discovered the vulnerability.
+Suggest a possible fault in the application that resulted in this vulnerability
+we can notice information is unsafely copied from a request and echoed into the application's instant response.
+==========
+Hack #4
+==========
+Give all the steps and input which you used to trigger this vulnerability
+1)Open or add an account on the banking website.
+2)Navigate to the 'My Banking Card' page by clicking on the card number.
+3)Use the personalization feature to upload a .jpg image for the card.
+4)Before confirming customization, open Burp Suite to intercept the web request.
+5)Send the intercepted request to the Burp Suite Repeater.
+6) In the request, change the 'filename' parameter under POST to 'png.php'.
+7)Resend the modified request and analyze the server's response for vulnerabilities.
+8)Boom you get the achievement
+Explain exactly how you discovered this vulnerability
+that was an easy discovery as I had already finished mapping my table and upon reading the description I knew I was faced with a malicious upload similar to ecs.lol I knew uploading the right image(File Extension, File Size, MIME Type,Image Metadata)and with right malicious code will trigger the flag.
+Suggest a possible fault in the application that resulted in this vulnerability
+malicious file uploads: Most likely, the uploaded files were not correctly validated by the application. Validation should be done correctly by verifying the file size, MIME type, and extension. 
+==========
+Hack #5
+==========
+Give all the steps and input which you used to trigger this vulnerability
+1)Append /stats to the bank's website URL. This leads to an alert about restricted access.
+2)Interpret the message as hinting at a possible SSRF vulnerability.
+3)Navigate to the 'My Account' tab on the bank's website.
+4)Select the card personalization option (usually by clicking on the card number).
+5)Look for an option to use a remote image for card customization.
+6)Enter the earlier visited URL (/stats) in the remote image URL field.
+7)Click on 'customize' to send the request, which should then display the flag
+Explain exactly how you discovered this vulnerability
+The SSRF vulnerability was discovered by testing the /stats URL, leading to an alert hinting at SSRF. Tests on other areas like 'Make Transfer' failed. The vulnerability was exposed on the card personalization page by injecting /stats into the 'remote image' field.
+Suggest a possible fault in the application that resulted in this vulnerability
+SSRF: The most important problem appears to be insufficient URL validation. Internal or possibly dangerous URLs should not be allowed in the field of the application.
+==========
+Hack #6
+==========
+Give all the steps and input which you used to trigger this vulnerability
+1) Begin by compiling a list of URLs found on the website. This would include all paths you encounter while navigating the site.
+2) For each URL you have identified, append /admin to the at the beginning. For example,  https://robthebank.soton.ac.uk/admin/bills.
+3)Visit each modified URL individually. This process can be time-consuming.
+4) Continue this process until you find a URL that triggers a flag or reveals an administrative interface. Eventually, you will. reach /admin/help which will trigger the flag 
+
+
+Explain exactly how you discovered this vulnerability
+this was a try-and-error run I was just testing every path that I knew in the website eventually I reached /admin/help which opened up the admin panel that triggered the vulnerability 
+Suggest a possible fault in the application that resulted in this vulnerability
+access control: The most likely fault is that the application lacks robust access control checks for administrative paths or it has a flaw in handling URL routing, allowing unauthorized users to access admin paths simply by modifying the URL
+==========
+Hack #7
+==========
+Give all the steps and input which you used to trigger this vulnerability
+1) Analyze the website's structure, focusing on the About and Services pages (denoted as A/S in the Hack title), and exclude Loans due to its different directory structure.
+2) Inject XSS and SQL payloads into the URL paths of the About and Services pages
+3) Gradually delete the URL path, starting from /pages/display/about to /pages/display/, injecting the payloads each time.
+4)Further, reduce the URL to /pages/, continue with XSS and SQL injection attempts, and observe for any triggered flags or unusual behaviour.
+Explain exactly how you discovered this vulnerability
+For Hack 7#, suspecting vulnerabilities in the about, services, and loans pages, I started XSS injections, beginning with 'about', and then 'service'. I progressively shortened the path from /pages/display/about< to /pages/display/<, and then to /pages/<. This triggered the flag. The clue to the vulnerability came from the hack's title.
+
+
+Suggest a possible fault in the application that resulted in this vulnerability
+Information disclosure: When sensitive data is not properly encrypted by the application, it can result in unintentional disclosure when it is transmitted over networks or stored in databases or file systems.
+==========
+Hack #8
+==========
+Give all the steps and input which you used to trigger this vulnerability
+1) Open Burp Suite and navigate to the Proxy tab.
+2) Use Burp Suite to intercept the web traffic when clicking the 'Make Transactions'.
+3) After intercepting the request, send it to the Repeater tab in Burp Suite.
+4) In the Repeater tab, find the POST method in the request and remove the parameter "Transfer from account"  
+5) Use the Inspector, located to the right, to ensure that you've deleted the correct parameter in its decoded form.
+6) After modification, hit 'Send', and it should show a flag was triggered.
+
+Explain exactly how you discovered this vulnerability
+I first tested basic XSS and SQL Injection attacks, then tried transferring funds within the same account (747), which was flagged. Using Burp Suite, I intercepted this transaction's request. In Burp Suite's Repeater tool, I manipulated the from-account parameter via Post-method, enabling a transfer to my account without a sender.
+Suggest a possible fault in the application that resulted in this vulnerability
+parameter manipulation: The application lacks effective user parameter validation, noticeable in its failure to recognize and reject the manipulated "from-account" parameter in a transaction request as an illegal or invalid change.
+==========
+Hack #9
+==========
+Give all the steps and input which you used to trigger this vulnerability
+1) Visit the 'Apply for Loan' tab, encountering a multi-step loan application process.
+2) Return to the second step of this process.
+3) Use the browser's Inspect tool to access developer tools.
+4) In the Elements tab, delete the HTML elements for the first three fields.
+5) Reveal all inputs in the HTML.
+6)Find a hidden HTML element, change its type to visible, and set its value to "2".
+7) Click 'Continue' to advance to the account selection step for the loan.
+8) Select any account, hit 'Continue', and unlock the achievement.
+
+
+
+
+Explain exactly how you discovered this vulnerability
+I first explored a logical fault with bill payments, attempting to exploit negative transfers, but with no success. Then, focusing on the 'Apply for a Loan' tab, I tried to get an application accepted. Despite all efforts, applications were always rejected. Realizing it's a multi-step process, I used the inspection tool to find and display a hidden form field. Changing its value to '2' and removing HTML elements got me the flag.
+Suggest a possible fault in the application that resulted in this vulnerability
+The issue seems to stem from flawed application logic and state management problems, including improper handling of form states, over-reliance on client-side controls for critical decisions, and inadequate server-side validation.
+==========
+Hack #10
+==========
+Give all the steps and input which you used to trigger this vulnerability
+1) Right-click on the page, select Inspect to open developer tools.
+2) Click the "Network" tab in the tools.
+3) Refresh the page to log network activity, focusing on the first or a specific request.
+4) In the network log, locate a request header like 'x-Powered-By' and copy its link.
+5) Paste this link in a new browser tab.
+6) Find the 'What’s New' section to see updates, noting the removal of 'showusers' query in the new version.
+7) Go back to the main site, and add the query (e.g., users?showusers=1).
+8) This change leads to a special page (e.g., /special/users) and unlocks the achievement.
+Explain exactly how you discovered this vulnerability
+Upon reading a hint, I used the inspection tool to check 'Source' and 'Network' tabs, finding only basic files and logging the site's activities. The network request showed the site used Open-Bank. checking Open-Bank i noticed  version 0.6 removed the 'showusers' query, not present in the site's version 0.5. Accessing 'showusers' via the query (users?showusers=1) redirected to /special/users, triggering the flag.
+Suggest a possible fault in the application that resulted in this vulnerability
+Out of Date Software: this vulnerability was a result of not updating the server to the newer version and showing the user what version it is using and the name of the framework
+==========
+Hack #11
+==========
+Give all the steps and input which you used to trigger this vulnerability
+1)Go to the help tab and choose a topic from the list.
+2)Change the URL in the browser from help?page=accounts to help?page=/ and press Enter.
+3)Note the access denied message and the hint about allowed access to etc/pass.
+4)Try path traversal by modifying the URL to ../../../../ to move back in the directory.
+5)See that this attempt doesn't reach the desired path.
+6)Use an online URL encoder to encode the path ../../../../etc/passwd.
+7)insert this encoded string to the URL.
+8)Press Enter to navigate with the new URL and continue attempts until achieving success.
+Explain exactly how you discovered this vulnerability
+After receiving a hint, I attempted path traversal on the 'Help' section of an application. While testing path traversal inside the 'Help" tab, I encountered an 'Access Denied' message with /ect/pass is allowed. then I tried normal ../../etcpasswd but I got nothing. To bypass the security filters, I used URL encoding. This successfully exploited a vulnerability
+Suggest a possible fault in the application that resulted in this vulnerability
+the application doesn't validate the user input before processing it or after validating the supplied input, 
+==========
+Hack #12
+==========
+Give all the steps and input which you used to trigger this vulnerability
+1)Use the Google Chrome inspect tool and go to the 'Application' tab.
+2)Search for a cookie named _utmz[a]; its location can vary.
+3)Copy the value of the _utmz[a] cookie, which is base64 encoded.
+4)Decode the cookie's value using a base64 decoder.
+5)In the decoded content, find the "d" index and change its adjacent integer value to '1'.
+6)Re-encode this modified content back to base64.
+7)In the 'Application' tab, replace the original cookie value with your new base64 encoded string.
+8)This action activates debug mode and unlocks the achievements.
+
+
+
+
+Explain exactly how you discovered this vulnerability
+Investigating for a unique cookie, as hinted, I examined each path on the website until I found the exact cookie, which seemed randomly generated. Noticing its base64 encoding, I decoded it to reveal an integer value next to the "d" key. I changed this value from 0 to 1, interpreting 0 as false, and then re-encoded it. Replacing the original cookie with this new encoded value and refreshing the page, I successfully triggered the flag.
+Suggest a possible fault in the application that resulted in this vulnerability
+ results from a flaw in the application's handling of client-side scripts, especially in the way it handles output encoding and data validation.
+==========
+Hack #13
+==========
+Give all the steps and input which you used to trigger this vulnerability
+1) Open Burp Suite and intercept the proxy before logging in.
+2) Click 'Forward' in Burp Suite to allow the request to proceed.
+3) Look for the redirect request, identified by a header like /redir/your-index.
+4) Change your index in the redirect URL to a different website's URL.
+5) Keep clicking 'Forward' in Burp Suite to process the modified request.
+6) Return to the original application (e.g., "rob the bank") to get the flag.
+Explain exactly how you discovered this vulnerability
+Based on the title hinting at a pre-login issue, I used Burp Suite to intercept the proxy before logging in and forwarding it. Observing a redirection to a user-specific page, I suspected an open redirect vulnerability. I tested this by changing the index to a different website URL
+Suggest a possible fault in the application that resulted in this vulnerability
+open redirect: the application improperly inserts user-controllable data into the redirection target
+==========
+Hack #14
+==========
+Give all the steps and input which you used to trigger this vulnerability
+1)Open Burp Suite, intercept the proxy, and send to the Repeater.
+2)In the Repeater, change the 'Accept' header to application/json.
+3)Modify the URL to /api.
+4)Resend the request until receiving a response with the latest instance, then copy it.
+5)Change the URL in the request to /api/instance/[No] and copy the key from the response.
+6)Switch the request method to POST, updating the URL to /api/a_16/[No].
+7)Add the copied key to the request body (key=" ").
+8)Insert a new header: Content-Type: application/x-www-form-urlencoded.
+9)Send the request to unlock the achievement.
+Explain exactly how you discovered this vulnerability
+I edited the HTTP request's 'Accept' header to application/json and changed the URL to /api to check the API response for tokens or keys. I noticed an action header (a_6), switched to POST, changed a_6 to a_16, and added application/x-www-form-urlencoded for proper formatting. Then, using a header key from the API response, I advanced and got the flag
+Suggest a possible fault in the application that resulted in this vulnerability
+ the application's APIs expose sensitive data and may be a source of information disclosure . This includes APIs that, in response to unauthorized requests, return sensitive data.
+==========
+Hack #15
+==========
+Give all the steps and input which you used to trigger this vulnerability
+1)insert /.config.php.swp to the website's URL to download the file.
+2)Open the file in Vim, scroll to the end to find database credentials.
+3)Use these credentials to connect to the website's database via MySQL mysql --host=robthebank.soton.ac.uk --user=mysql_ro --password=2c0aa5bd375b20c6e466896e21c6668e.
+4)Run commands in MySQL: show database;, use bank;, show tables;, select * from user;.
+5)In the results, note the 'grant' column's URL, superadmin/debug.
+6)Visit this URL on the robthebank website.
+7)Log in as 'test' on the super admin page, decrypting the MD5 password to 'ScoutsAreTheBest'.
+8)Access the page with these credentials to get the flag.
+Explain exactly how you discovered this vulnerability
+knowing it has to do with Vim I tried to get the recovered file from the website which led me to think there was a way to access the database and a way to access the super admin
+Suggest a possible fault in the application that resulted in this vulnerability
+This is related to CVE-2017-17087, which is related to Vim's improper handling of group ownership handling of swap files prior to version 8.0.1263. that lead to unauthorised access to database
